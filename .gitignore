@@ -1,0 +1,15 @@
+# To prevent large files being stored the below should be
+# rendered from the blend files. Later renders may be put on YouTube
+# then linked via LFS.
+
+# Video Files
+*.mp4
+*.avi
+
+# Image files
+*.png
+
+
+# Blender physics cache files - again once assets are final they
+# may be uploaded however for now not
+*.bphys
