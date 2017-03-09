@@ -78,6 +78,16 @@ def systeml_koch_curve(iterations):
         iterations)
 
 
+def systeml_koch_snowflake(iterations):
+    """ A beautiful Koch snowflake """
+    return systeml_compile(
+        "F++F++F",
+        {
+            "F": "F-F++F-F"
+        },
+        iterations)
+
+
 def systeml_sierpinski_triangle(iterations):
     """ The Sierpinski triangle """
     return systeml_compile(
