@@ -9,7 +9,17 @@
 # Image files
 *.png
 
-
 # Blender physics cache files - again once assets are final they
 # may be uploaded however for now not
 *.bphys
+
+# Ignore blender backup files
+*.blend1*
+*.blend2*
+*.blend3*
+*.blend4*
+*.blend5*
+*.blend6*
+*.blend7*
+*.blend8*
+*.blend9*
