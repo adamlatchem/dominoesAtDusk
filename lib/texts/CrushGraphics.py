@@ -19,8 +19,14 @@ from mathutils import (
 )
 
 
+# 360 degrees
 TWO_PI = 2.0 * PI
+
+# 90 degrees
 PI_BY_TWO = PI / 2.0
+
+# 60 degrees
+PI_BY_THREE = PI / 3.0
 
 
 def areas_tuple():
@@ -53,12 +59,12 @@ class Squirt(object):
         self.location = self.location + distance * self.direction()
     
     def turn(self, angle):
-        """ Rotate by given quaternion """
+        """ Rotate by given number of radians and normalise to +/-PI """
         self.rotation = self.rotation + angle
-        while self.rotation > TWO_PI:
+        while self.rotation > PI:
             self.rotation = self.rotation - TWO_PI
-        while self.rotation < -TWO_PI:
-            self.rotation = self.rotaiton + TWO_PI
+        while self.rotation < -PI:
+            self.rotation = self.rotation + TWO_PI
 
 
 class Crush(object):
@@ -109,7 +115,7 @@ class Crush(object):
         self.state.pop()        
         
     def turn(self, angle):
-        """ Rotate by given quaternion """
+        """ Rotate by given number of radians """
         self.state[-1].turn(angle)
 
 
