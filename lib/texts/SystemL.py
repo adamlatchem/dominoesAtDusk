@@ -20,7 +20,7 @@ def systeml_compile_slow(axiom, rules, iterations):
         for symbol in axiom:
             if symbol in rules:
                 next_axiom = next_axiom + rules[symbol]
-            else :
+            else:
                 next_axiom = next_axiom + symbol        
         axiom = next_axiom
             
@@ -42,7 +42,7 @@ def systeml_execute(lsystem, symbol_to_function):
         symbol_to_function[symbol]()
 
 
-def systeml_agae(iterations):
+def systeml_algae(iterations):
     """ A model of the growth of algae """
     return systeml_compile(
         "A",
