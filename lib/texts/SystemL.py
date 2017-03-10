@@ -12,20 +12,27 @@
 #
 ################################################################################
 
+
+def systeml_compile_slow(axiom, rules, iterations):
+    """ Use rules to replace axiom set number of iterations """
+    for iteration in range(0, iterations):
+        next_axiom = ""       
+        for symbol in axiom:
+            if symbol in rules:
+                next_axiom = next_axiom + rules[symbol]
+            else :
+                next_axiom = next_axiom + symbol        
+        axiom = next_axiom
+            
+    return axiom
+
+
 def systeml_compile(axiom, rules, iterations):
     """ Use rules to replace axiom set number of iterations """
-    result = axiom
-    
+    table = str.maketrans(rules)
     for iteration in range(0, iterations):
-        new_result = ""       
-        for symbol in result:
-            if symbol in rules:
-                new_result = new_result + rules[symbol]
-            else :
-                new_result = new_result + symbol        
-        result = new_result
-            
-    return result
+        axiom = axiom.translate(table)
+    return axiom
 
 
 def systeml_execute(lsystem, symbol_to_function):
@@ -119,3 +126,14 @@ def systeml_dragon_curve(iterations):
             "Y": "-FX-Y"
         },
         iterations)
+
+
+if __name__ == '__main__':
+    import timeit
+
+    n = 100
+    t = timeit.timeit(
+        "systeml_dragon_curve(15)",
+        setup="from __main__ import systeml_dragon_curve",
+        number=n)
+    print("Single run %.4fs" % (t / n))
