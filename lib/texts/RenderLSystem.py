@@ -10,7 +10,7 @@ import SystemL
 def render_dragon():
     dragon = SystemL.systeml_dragon_curve(5)
     
-    turtle = CrushGraphics.Crush()
+    turtle = CrushGraphics.Crush("DragonCurve")
     turtle.pen_down()
     
     SystemL.systeml_execute(dragon,
@@ -27,7 +27,7 @@ def render_koch_snowflake():
     iterations = 4
     snowflake = SystemL.systeml_koch_snowflake(iterations)
     
-    turtle = CrushGraphics.Crush()
+    turtle = CrushGraphics.Crush("KochSnowflake")
     turtle.pen_down()
     
     SystemL.systeml_execute(snowflake,

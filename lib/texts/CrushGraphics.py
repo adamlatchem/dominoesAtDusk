@@ -72,12 +72,14 @@ class Crush(object):
     
     state = [Squirt()]
     
-    def __init__(self):
+    def __init__(self, name):
         """ Initially place ourselves at the 3D cursor """
         areas = areas_tuple()
         view3d = bpy.context.screen.areas[areas['VIEW_3D']].spaces[0]
         self.state[-1].location = \
             copy.copy(view3d.cursor_location)
+        self.group_name = name
+        bpy.ops.group.create(name=self.group_name)
         
     def pen_up(self):
         """ Raise the pen """
@@ -105,6 +107,7 @@ class Crush(object):
                 location=mid_point, radius=radius / 2.0, rotation=rotation)
             bpy.ops.object.transform_apply(location=False,
                 rotation=True, scale=True)
+            bpy.ops.object.group_link(group=self.group_name)
 
     def push(self):
         """ push state onto stack """
@@ -119,8 +122,8 @@ class Crush(object):
         self.state[-1].turn(angle)
 
 
-def example():
-    crush = Crush()
+def test():
+    crush = Crush("I_am_square")
     right_90 = -PI_BY_TWO
     crush.pen_down()
     crush.forward(1)
