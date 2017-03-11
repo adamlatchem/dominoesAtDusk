@@ -32,7 +32,7 @@ def render_koch_snowflake():
     
     SystemL.systeml_execute(snowflake,
     {
-        "F": lambda : turtle.forward(0.5 / iterations),
+        "F": lambda : turtle.forward(1.0 / pow(3, iterations)),
         "+": lambda : turtle.turn( CrushGraphics.PI_BY_THREE),
         "-": lambda : turtle.turn(-CrushGraphics.PI_BY_THREE)
     })
