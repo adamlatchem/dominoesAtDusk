@@ -103,7 +103,7 @@ def create_curve(context, name, vert_array, self, align_matrix):
     if spline_type == 'BEZIER':
         raise Exception("need setBezierHandles from curve_aceous addon")
 
-    return new_curve
+    return new_obj
 
 
 class Squirt(object):
@@ -170,14 +170,13 @@ class Crush(object):
     # For Bezier curve
     handle_type = None
 
-    def __init__(self, name):
+    def __init__(self, group_name):
         """ Initially place ourselves at the 3D cursor """
         areas = areas_tuple()
         view3d = bpy.context.screen.areas[areas['VIEW_3D']].spaces[0]
         self.state[-1].location = \
             copy.copy(view3d.cursor_location)
-        self.group_name = name
-        bpy.ops.group.create(name=self.group_name)
+        self.group = bpy.data.groups.new(group_name)
 
     def pen_up(self):
         """ Raise the pen """
@@ -212,8 +211,9 @@ class Crush(object):
         """ Take current state and render its path as a curve """
         state = self.state[-1]
         vertex_array = verts_to_points(state.path, 'NURBS')
-        create_curve(bpy.context, self.group_name, vertex_array, self, None)
-        bpy.ops.object.group_link(group=self.group_name)
+        curve = create_curve(bpy.context, self.group.name + '-curve',
+            vertex_array, self, None)
+        self.group.objects.link(curve)
         state.new_path()
 
 
