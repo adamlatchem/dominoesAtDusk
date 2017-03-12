@@ -66,14 +66,14 @@ def create_curve(context, name, vert_array, self, align_matrix):
     """
     Create new CurveObject from vertarray and splineType.
 
-    Adapted from blenders curave_aceous module.
+    Adapted from blenders curve_aceous module.
     """
     # options to vars
     spline_type = self.spline_type
 
     # create curve
     scene = context.scene
-    new_curve = bpy.data.curves.new(name, type='CURVE')  # curvedatablock
+    new_curve = bpy.data.curves.new(name + '-curve', type='CURVE')
     new_spline = new_curve.splines.new(type=spline_type)  # spline
 
     # create spline from vertarray
@@ -83,7 +83,6 @@ def create_curve(context, name, vert_array, self, align_matrix):
     else:
         new_spline.points.add(int(len(vert_array)*0.25 - 1))
         new_spline.points.foreach_set('co', vert_array)
-        new_spline.use_endpoint_u = True
 
     # set curveOptions
     new_curve.dimensions = self.shape
@@ -141,6 +140,7 @@ class Squirt(object):
 
     def turn(self, angle):
         """ Rotate by given number of radians and normalise to +/-PI """
+        self.extend_path() # So the spline subdivisions don't cut corners
         self.rotation = self.rotation + angle
         while self.rotation > PI:
             self.rotation = self.rotation - TWO_PI
