@@ -48,7 +48,7 @@ def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
     bpy.ops.mesh.primitive_cube_add(location=location, rotation=rotation)
     cube = bpy.context.active_object
     cube.name = "Dominno.%03d" % frame
-    bpy.ops.object.group_link(group=group_name)
+    bpy.data.groups[group_name].objects.link(cube)
     cube.dimensions = dimensions
     if material:
         cube.data.materials.append(material)
@@ -85,7 +85,7 @@ def set_frame(curve, frame):
     bpy.context.scene.update()
 
 
-def walk_curve(curve, steps, walk_function):
+def walk_curve(operator, curve, steps, walk_function):
     """ Walk curve calling walk_function at each frame """
     if curve is None or not isinstance(curve.data, bpy.types.Curve):
         raise Exception("Select a Curve/Path first")
@@ -94,11 +94,12 @@ def walk_curve(curve, steps, walk_function):
     active_object = bpy.context.scene.objects.active
 
     location = curve.location + curve_data.splines[0].points[0].co.xyz
-    bpy.ops.object.empty_add(type='ARROWS', location=location)
-    empty_object = bpy.context.active_object
-    empty_object.select = True
-    bpy.context.scene.objects.active = curve #parent
-    bpy.ops.object.parent_set(type='FOLLOW')
+
+    empty_object = bpy.data.objects.new(name="Empty", object_data=None)
+    empty_object.location = location
+    empty_object.empty_draw_type = 'ARROWS'
+    bpy.context.scene.objects.link(empty_object)
+    empty_object.parent = curve
 
     set_frame(curve, 2)
     previous_location = Vector(empty_object.matrix_world.translation)
@@ -107,7 +108,7 @@ def walk_curve(curve, steps, walk_function):
     direction = location - previous_location
     previous_location = location + direction
 
-    step_to_frame = curve_data.path_duration / steps
+    step_to_frame = curve_data.path_duration / float(steps)
     for step in range(1, int(steps) + 1):
         frame = step * step_to_frame
         set_frame(curve, frame)
@@ -117,8 +118,7 @@ def walk_curve(curve, steps, walk_function):
         walk_function(step, location, rotation)
         previous_location = Vector(location)
 
-    empty_object.select = True
-    bpy.ops.object.delete()
+    bpy.data.objects.remove(empty_object, do_unlink=True)
 
     bpy.context.scene.objects.active = active_object
     active_object.select = True
@@ -181,13 +181,13 @@ class PathWalker(bpy.types.Operator):
         subtype='NONE',
         unit='NONE'
     )
-    
-    number = FloatProperty(
+
+    number = IntProperty(
         name="number",
         description="The number of objects to place on the path",
         default=5,
-        subtype='NONE',
-        unit='NONE'
+        min=1,
+        max=10000
     )
 
     simulation_type = EnumProperty(
@@ -210,11 +210,13 @@ class PathWalker(bpy.types.Operator):
         context.object.select = False
 
         group_name = active_object.name + 'PathWalkerGroup'
-        bpy.ops.group.create(name=group_name)
+        if bpy.data.groups.find(group_name) == -1:
+            bpy.data.groups.new(name=group_name)
 
         material = None
         if len(self.material_name) > 0:
-            material = bpy.data.materials[self.material_name]
+            if bpy.data.materials.find(self.material_name) != -1:
+                material = bpy.data.materials[self.material_name]
 
         def create_domino(frame, location, rotation):
             """ for use with walk_curve to draw a domino """
@@ -226,7 +228,7 @@ class PathWalker(bpy.types.Operator):
                         group_name=group_name, material=material,
                         simulation_type=self.simulation_type)
 
-        walk_curve(active_object, self.number, create_domino)
+        walk_curve(self, active_object, self.number, create_domino)
         return {'FINISHED'}
 
 
