@@ -86,6 +86,7 @@ def create_curve(context, name, vert_array, self, align_matrix):
 
     # set curveOptions
     new_curve.dimensions = self.shape
+    new_curve.use_path = self.use_path
     new_spline.use_cyclic_u = self.use_cyclic_u
     new_spline.use_endpoint_u = self.endp_u
     new_spline.order_u = self.order_u
@@ -166,6 +167,9 @@ class Crush(object):
 
     # Order of the NURBS spline
     order_u = 2
+
+    # Use curve as animation path
+    use_path = True
 
     # For Bezier curve
     handle_type = None
