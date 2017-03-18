@@ -53,7 +53,7 @@ def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
     if material:
         cube.data.materials.append(material)
 
-    collision_shape = 'MESH'
+    collision_shape = 'CONVEX_HULL'
 
     if simulation_type == 'GameEngine':
         physics_object = cube.game
@@ -70,8 +70,13 @@ def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
         physics_object.enabled = True
         physics_object.collision_shape = collision_shape
         physics_object.friction = friction
+        physics_object.use_deactivation = True
+        physics_object.use_start_deactivated = True
+        physics_object.deactivate_linear_velocity = 4.0
+        physics_object.deactivate_angular_velocity = 4.0
 
     physics_object.mass = mass
+    physics_object.use_margin = True
     physics_object.collision_margin = collision_margin
     physics_object.restitution = bounciness
 
@@ -161,7 +166,7 @@ class PathWalker(bpy.types.Operator):
     collision_margin = FloatProperty(
         name="collision margin",
         description="physics collision margin",
-        default=0.0001,
+        default=0.001,
         subtype='NONE',
         unit='NONE'
     )
