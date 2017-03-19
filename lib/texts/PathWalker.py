@@ -71,9 +71,9 @@ def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
         physics_object.collision_shape = collision_shape
         physics_object.friction = friction
         physics_object.use_deactivation = True
-        physics_object.use_start_deactivated = True
-        physics_object.deactivate_linear_velocity = 4.0
-        physics_object.deactivate_angular_velocity = 4.0
+        physics_object.use_start_deactivated = False
+        physics_object.deactivate_linear_velocity = 1.0
+        physics_object.deactivate_angular_velocity = 1.0
 
     physics_object.mass = mass
     physics_object.use_margin = True
