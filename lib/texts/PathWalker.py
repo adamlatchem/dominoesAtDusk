@@ -86,7 +86,6 @@ def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
 def set_frame(curve, frame):
     """ Set eval_time on curve and update dependent variables """
     curve.data.eval_time = float(frame)
-    curve.update_tag()
     bpy.context.scene.update()
 
 
@@ -98,13 +97,21 @@ def walk_curve(operator, curve, steps, walk_function):
     eval_time = curve_data.eval_time
     active_object = bpy.context.scene.objects.active
 
+    set_frame(curve, 1)
     location = curve.location + curve_data.splines[0].points[0].co.xyz
 
     empty_object = bpy.data.objects.new(name="Empty", object_data=None)
-    empty_object.location = location
     empty_object.empty_draw_type = 'ARROWS'
     bpy.context.scene.objects.link(empty_object)
-    empty_object.parent = curve
+
+    constraint = empty_object.constraints.new(type='FOLLOW_PATH')
+    constraint.target = curve
+    curve_data.use_path = True
+    animation = curve_data.animation_data_create()
+    animation.action = bpy.data.actions.new("%sAction" % curve_data.name)
+    f_curve = animation.action.fcurves.new("eval_time")
+    modifier = f_curve.modifiers.new('GENERATOR')
+    modifier.coefficients = (-1, 1)
 
     set_frame(curve, 2)
     previous_location = Vector(empty_object.matrix_world.translation)
@@ -180,8 +187,8 @@ class PathWalker(bpy.types.Operator):
     )
 
     bounciness = FloatProperty(
-        name="friction",
-        description="friction of each object",
+        name="bounciness",
+        description="bounciness of each object",
         default=0.5,
         subtype='NONE',
         unit='NONE'
@@ -225,7 +232,7 @@ class PathWalker(bpy.types.Operator):
 
         def create_domino(frame, location, rotation):
             """ for use with walk_curve to draw a domino """
-            debug_path(self, frame, location, rotation)
+            #debug_path(self, frame, location, rotation)
             draw_domino(frame, location, rotation,
                         dimensions=self.dimensions, mass=self.mass,
                         collision_margin=self.collision_margin,
