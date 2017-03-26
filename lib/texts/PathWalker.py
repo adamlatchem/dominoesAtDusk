@@ -40,18 +40,27 @@ def debug_path(operator, frame, location, rotation):
                     "debug_path: %d %s %s" % (frame, location, rotation))
 
 
-def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
+def draw_domino(frame, location, euler_rotation, dimensions, mass, collision_margin,
                 friction, bounciness, group_name, material, simulation_type):
     """ Draw a single domino named for given frame at location with rotation and
         dimensions as supplied. Physics parameters may also be tweaked. """
     location = location + Vector((0, 0, dimensions[2] / 2.0))
-    bpy.ops.mesh.primitive_cube_add(location=location, rotation=rotation)
-    cube = bpy.context.active_object
-    cube.name = "Dominno.%03d" % frame
+    name = "Domino.%03d" % frame
+    if frame == 1:
+        bpy.ops.mesh.primitive_cube_add(location=location, rotation=euler_rotation)
+        cube = bpy.context.active_object
+        cube.name = name
+        cube.data.name = 'Domino-mesh'
+        if material:
+            cube.data.materials.append(material)
+    else:
+        cube = bpy.data.objects.new(name=name, object_data=bpy.data.meshes['Domino-mesh'])
+        cube.location = location
+        cube.rotation_euler = euler_rotation
+        bpy.context.scene.objects.link(cube)
     bpy.data.groups[group_name].objects.link(cube)
     cube.dimensions = dimensions
-    if material:
-        cube.data.materials.append(material)
+    bpy.context.scene.objects.active = cube
 
     collision_shape = 'CONVEX_HULL'
 
@@ -79,8 +88,6 @@ def draw_domino(frame, location, rotation, dimensions, mass, collision_margin,
     physics_object.use_margin = True
     physics_object.collision_margin = collision_margin
     physics_object.restitution = bounciness
-
-    bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
 
 def set_frame(curve, frame):
