@@ -12,7 +12,10 @@
 import bpy
 import copy
 
-from math import pi as PI
+from math import (
+    pi as PI,
+    floor
+)
 from mathutils import (
     Vector,
     Quaternion
@@ -62,6 +65,20 @@ def verts_to_points(verts, spline_type):
     return vert_array
 
 
+def setBezierHandles(obj, mode):
+    """
+    Adapted from blenders curave_aceous module.
+    """
+    scene = bpy.context.scene
+    if obj.type != 'CURVE':
+        return
+    scene.objects.active = obj
+    bpy.ops.object.mode_set(mode='EDIT', toggle=True)
+    bpy.ops.curve.select_all(action='SELECT')
+    bpy.ops.curve.handle_type_set(type=mode)
+    bpy.ops.object.mode_set(mode='OBJECT', toggle=True)
+
+
 def create_curve(context, name, vert_array, self, align_matrix):
     """
     Create new CurveObject from vertarray and splineType.
@@ -85,7 +102,7 @@ def create_curve(context, name, vert_array, self, align_matrix):
         new_spline.points.foreach_set('co', vert_array)
 
     # set curveOptions
-    new_curve.dimensions = self.shape
+    new_curve.dimensions = '2D'
     new_curve.use_path = self.use_path
     new_spline.use_cyclic_u = self.use_cyclic_u
     new_spline.use_endpoint_u = self.endp_u
@@ -101,7 +118,7 @@ def create_curve(context, name, vert_array, self, align_matrix):
 
     # set bezierhandles
     if spline_type == 'BEZIER':
-        raise Exception("need setBezierHandles from curve_aceous addon")
+        setBezierHandles(new_obj, self.handle_type)
 
     return new_obj
 
@@ -109,13 +126,20 @@ def create_curve(context, name, vert_array, self, align_matrix):
 class Squirt(object):
     """ State for Crush """
 
+    # State of the pen
     pen_down = False
 
+    # Normalised rotation
     rotation = 0
 
+    # Location of pen
     location = Vector()
 
+    # All points along path drawn so far
     path = [[0, 0, 0]]
+    
+    # Optional spline type control
+    spline_type = None
 
     def new_path(self):
         """ Sart a new path """
@@ -141,12 +165,12 @@ class Squirt(object):
 
     def turn(self, angle):
         """ Rotate by given number of radians and normalise to +/-PI """
-        self.extend_path() # So the spline subdivisions don't cut corners
-        self.rotation = self.rotation + angle
-        while self.rotation > PI:
-            self.rotation = self.rotation - TWO_PI
-        while self.rotation < -PI:
-            self.rotation = self.rotation + TWO_PI
+        if self.spline_type == 'NURBS':
+            # So the spline subdivisions don't cut corners
+            self.extend_path() 
+        self.rotation = self.rotation + angle        
+        self.rotation = self.rotation - \
+            TWO_PI * floor((self.rotation + PI) / TWO_PI)
 
 
 class Crush(object):
@@ -154,10 +178,11 @@ class Crush(object):
         is constructed and rendered as a single curve when pen_up() is
         invoked. """
 
-    state = [Squirt()]
+    # Stack of states provide by Squirt
+    state = None
 
-    spline_type = 'NURBS'
-    shape = '2D'
+    # 'POLY', 'NURBS' or 'BEZIER'
+    spline_type = None
 
     # Curve is closed
     use_cyclic_u = False
@@ -172,15 +197,18 @@ class Crush(object):
     use_path = True
 
     # For Bezier curve
-    handle_type = None
+    handle_type = 'AUTOMATIC'
 
-    def __init__(self, group_name):
+    def __init__(self, group_name, spline_type):
         """ Initially place ourselves at the 3D cursor """
+        self.group = bpy.data.groups.new(group_name)
+        self.spline_type = spline_type
         areas = areas_tuple()
         view3d = bpy.context.screen.areas[areas['VIEW_3D']].spaces[0]
+        self.state = [Squirt()]
+        self.state[-1].spline_type = self.spline_type
         self.state[-1].location = \
             copy.copy(view3d.cursor_location)
-        self.group = bpy.data.groups.new(group_name)
 
     def pen_up(self):
         """ Raise the pen """
@@ -214,7 +242,7 @@ class Crush(object):
     def create_path(self):
         """ Take current state and render its path as a curve """
         state = self.state[-1]
-        vertex_array = verts_to_points(state.path, 'NURBS')
+        vertex_array = verts_to_points(state.path, self.spline_type)
         curve = create_curve(bpy.context, self.group.name + '-curve',
             vertex_array, self, None)
         self.group.objects.link(curve)
@@ -223,7 +251,7 @@ class Crush(object):
 
 def test():
     """ Used to test during development """
-    crush = Crush("I_am_square")
+    crush = Crush("I_am_square", 'BEZIER')
     right_90 = -PI_BY_TWO
     crush.pen_down()
     crush.forward(1)
@@ -235,3 +263,7 @@ def test():
     crush.forward(1)
     crush.turn(right_90)
     crush.pen_up()
+
+
+if __name__ == '__main__':
+    test()

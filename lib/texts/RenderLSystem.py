@@ -19,7 +19,7 @@ def render_dragon():
 
     dragon = SystemL.systeml_dragon_curve(5)
 
-    turtle = CrushGraphics.Crush("DragonCurve")
+    turtle = CrushGraphics.Crush("DragonCurve", 'NURBS')
     turtle.pen_down()
     SystemL.systeml_execute(dragon, dragon_renderer)
     turtle.pen_up()
@@ -36,7 +36,13 @@ def render_koch_snowflake():
     for iterations in range(0, 5):
         snowflake = SystemL.systeml_koch_snowflake(iterations)
 
-        turtle = CrushGraphics.Crush("KochSnowflake-%d" % iterations)
+        turtle = CrushGraphics.Crush("KochSnowflake-%d" % iterations, 'NURBS')
+        turtle.pen_down()
+        SystemL.systeml_execute(snowflake, snowflake_renderer)
+        turtle.pen_up()
+
+        turtle = CrushGraphics.Crush("KochSnowflakeBezier-%d" % iterations,
+            'BEZIER')
         turtle.pen_down()
         SystemL.systeml_execute(snowflake, snowflake_renderer)
         turtle.pen_up()
