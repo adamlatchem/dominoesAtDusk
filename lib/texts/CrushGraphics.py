@@ -109,7 +109,7 @@ def create_curve(context, name, vert_array, self, align_matrix):
     new_spline.order_u = self.order_u
 
     # create object with newCurve
-    new_obj = bpy.data.objects.new(name, new_curve)  # object
+    new_obj = bpy.data.objects.new(name + '-object', new_curve)
     scene.objects.link(new_obj)  # place in active scene
     new_obj.select = True  # set as selected
     scene.objects.active = new_obj  # set as active
@@ -126,20 +126,13 @@ def create_curve(context, name, vert_array, self, align_matrix):
 class Squirt(object):
     """ State for Crush """
 
-    # State of the pen
-    pen_down = False
-
-    # Normalised rotation
-    rotation = 0
-
-    # Location of pen
-    location = Vector()
-
-    # All points along path drawn so far
-    path = [[0, 0, 0]]
-    
-    # Optional spline type control
-    spline_type = None
+    def __init__(self):
+        """ Ctor """
+        self.pen_down = False
+        self.rotation = 0
+        self.location = Vector()
+        self.path = [[0, 0, 0]]
+        self.spline_type = None
 
     def new_path(self):
         """ Sart a new path """
@@ -178,30 +171,20 @@ class Crush(object):
         is constructed and rendered as a single curve when pen_up() is
         invoked. """
 
-    # Stack of states provide by Squirt
-    state = None
-
-    # 'POLY', 'NURBS' or 'BEZIER'
-    spline_type = None
-
-    # Curve is closed
-    use_cyclic_u = False
-
-    # Stretch to endpoints
-    endp_u = True
-
-    # Order of the NURBS spline
-    order_u = 2
-
-    # Use curve as animation path
-    use_path = True
-
-    # For Bezier curve
-    handle_type = 'AUTOMATIC'
-
     def __init__(self, group_name, spline_type):
         """ Initially place ourselves at the 3D cursor """
+        # Curve is closed
+        self.use_cyclic_u = False
+        # Stretch to endpoints
+        self.endp_u = True
+        # Order of the NURBS spline
+        self.order_u = 2
+        # Use curve as animation path
+        self.use_path = True
+        # For Bezier curve
+        self.handle_type = 'AUTOMATIC'
         self.group = bpy.data.groups.new(group_name)
+        # 'POLY', 'NURBS' or 'BEZIER'
         self.spline_type = spline_type
         areas = areas_tuple()
         view3d = bpy.context.screen.areas[areas['VIEW_3D']].spaces[0]
@@ -243,7 +226,7 @@ class Crush(object):
         """ Take current state and render its path as a curve """
         state = self.state[-1]
         vertex_array = verts_to_points(state.path, self.spline_type)
-        curve = create_curve(bpy.context, self.group.name + '-curve',
+        curve = create_curve(bpy.context, self.group.name,
             vertex_array, self, None)
         self.group.objects.link(curve)
         state.new_path()

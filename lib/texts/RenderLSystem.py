@@ -7,7 +7,7 @@ import CrushGraphics
 import SystemL
 
 
-def render_dragon():
+def render_dragon(spline_type):
     """ Render the dragon l-system """
     dragon_renderer = {
         "F": lambda: turtle.forward(2),
@@ -19,13 +19,13 @@ def render_dragon():
 
     dragon = SystemL.systeml_dragon_curve(5)
 
-    turtle = CrushGraphics.Crush("DragonCurve", 'NURBS')
+    turtle = CrushGraphics.Crush("DragonCurve", spline_type)
     turtle.pen_down()
     SystemL.systeml_execute(dragon, dragon_renderer)
     turtle.pen_up()
 
 
-def render_koch_snowflake():
+def render_koch_snowflake(spline_type):
     """ render a Koch snowflake curve """
     snowflake_renderer = {
         "F": lambda: turtle.forward(1.0 / pow(3, iterations)),
@@ -36,17 +36,13 @@ def render_koch_snowflake():
     for iterations in range(0, 5):
         snowflake = SystemL.systeml_koch_snowflake(iterations)
 
-        turtle = CrushGraphics.Crush("KochSnowflake-%d" % iterations, 'NURBS')
-        turtle.pen_down()
-        SystemL.systeml_execute(snowflake, snowflake_renderer)
-        turtle.pen_up()
-
-        turtle = CrushGraphics.Crush("KochSnowflakeBezier-%d" % iterations,
-            'BEZIER')
+        turtle = CrushGraphics.Crush(
+            "KochSnowflake%s-%d" % (spline_type, iterations),
+            spline_type)
         turtle.pen_down()
         SystemL.systeml_execute(snowflake, snowflake_renderer)
         turtle.pen_up()
 
 
 if __name__ == '__main__':
-    render_koch_snowflake()
+    render_koch_snowflake('BEZIER')
