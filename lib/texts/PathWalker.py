@@ -97,74 +97,18 @@ def set_frame(curve, frame):
 
 
 def walk_curve(operator, curve, steps, walk_function):
-    """ Walk curve calling walk_function at each frame """
-    if curve is None or not isinstance(curve.data, bpy.types.Curve):
-        raise Exception("Select a Curve/Path first")
-
+    """ Walk a curve - this is slow as number of 
+        points gets above around a few hundred"""
     curve_data = curve.data
+    eval_time = curve_data.eval_time
+    active_object = bpy.context.scene.objects.active
+
+    set_frame(curve, 1)
     curve_type = curve_data.splines[0].type
     if curve_type == 'NURBS':
-        walk_curve_nurbs(operator, curve, steps, walk_function)
+        location = curve.location + curve_data.splines[0].points[0].co.xyz
     elif curve_type == 'BEZIER':
-        walk_curve_bezier(operator, curve, steps, walk_function)
-
-
-def walk_curve_nurbs(operator, curve, steps, walk_function):
-    """ Walk a NURBS curve - this is slow as number of 
-        points gets above around a few hundred"""
-    curve_data = curve.data
-    eval_time = curve_data.eval_time
-    active_object = bpy.context.scene.objects.active
-
-    set_frame(curve, 1)
-    location = curve.location + curve_data.splines[0].points[0].co.xyz
-
-    empty_object = bpy.data.objects.new(name="Empty", object_data=None)
-    empty_object.empty_draw_type = 'ARROWS'
-    bpy.context.scene.objects.link(empty_object)
-
-    constraint = empty_object.constraints.new(type='FOLLOW_PATH')
-    constraint.target = curve
-    curve_data.use_path = True
-    animation = curve_data.animation_data_create()
-    animation.action = bpy.data.actions.new("%sAction" % curve_data.name)
-    f_curve = animation.action.fcurves.new("eval_time")
-    modifier = f_curve.modifiers.new('GENERATOR')
-    modifier.coefficients = (-1, 1)
-
-    set_frame(curve, 2)
-    previous_location = Vector(empty_object.matrix_world.translation)
-    set_frame(curve, 1)
-    location = empty_object.matrix_world.translation
-    direction = location - previous_location
-    previous_location = location + direction
-
-    step_to_frame = curve_data.path_duration / float(steps)
-    for step in range(1, int(steps) + 1):
-        frame = step * step_to_frame
-        set_frame(curve, frame)
-        direction = location - previous_location
-        rot_quat = direction.to_track_quat('X', 'Z')
-        rotation = rot_quat.to_euler()
-        walk_function(step, location, rotation)
-        previous_location = Vector(location)
-
-    bpy.data.objects.remove(empty_object, do_unlink=True)
-
-    bpy.context.scene.objects.active = active_object
-    active_object.select = True
-    set_frame(curve, eval_time)
-
-
-def walk_curve_bezier(operator, curve, steps, walk_function):
-    """ Walk a BEZIER curve - this is slow as number of 
-        points gets above around a few hundred"""
-    curve_data = curve.data
-    eval_time = curve_data.eval_time
-    active_object = bpy.context.scene.objects.active
-
-    set_frame(curve, 1)
-    location = curve.location + curve_data.splines[0].bezier_points[0].co.xyz
+        location = curve.location + curve_data.splines[0].bezier_points[0].co.xyz
 
     empty_object = bpy.data.objects.new(name="Empty", object_data=None)
     empty_object.empty_draw_type = 'ARROWS'
