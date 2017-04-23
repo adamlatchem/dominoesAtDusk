@@ -5,6 +5,39 @@
 ################################################################################
 import bpy
 
+
+def simplify_curves(error):
+    """ Call Simplify f-curves on all selected objects """
+    selected = bpy.context.selected_objects.copy()
+    old_active = bpy.context.scene.objects.active
+    
+    for object in selected:
+        bpy.context.scene.objects.active = object
+        bpy.ops.graph.simplify(error=error)
+        
+    bpy.context.scene.objects.active = old_active
+
+
+class SimplifyCurves(bpy.types.Operator):
+    """ Simplify f-curves for all selected objects """
+
+    bl_description = "Simplify f-curves for all selected objects"
+
+    bl_idname = 'object.simplify_curves'
+
+    bl_label = 'Simplify f-curves'
+    
+    @classmethod
+    def poll(cls, context):
+        """ Blender poll method """
+        return True
+
+    def execute(self, context):
+        """ Execute utility """
+        simplify_curves(0.01)
+        return {'FINISHED'}
+
+
 def clean_unused_objects():
     """ Remove objects with 0 use count from the file """
     groups = [bpy.data.curves, bpy.data.meshes, bpy.data.objects, 
@@ -64,17 +97,21 @@ class Toolbox(bpy.types.Panel):
 
         row = layout.row()
         row.operator("object.clean_unused_objects", text="Clean Unused")
+        row = layout.row()
+        row.operator("object.simplify_curves",      text="Simplify F-Curves")
 
 
 def register():
     """ Register Blender Operator """
     bpy.utils.register_class(CleanUnusedObjects)
+    bpy.utils.register_class(SimplifyCurves)
     bpy.utils.register_class(Toolbox)
 
 
 def unregister():
     """ Unregister Blender Operator """
     bpy.utils.unregister_class(Toolbox)
+    bpy.utils.unregister_class(SimplifyCurves)
     bpy.utils.unregister_class(CleanUnusedObjects)
 
 
