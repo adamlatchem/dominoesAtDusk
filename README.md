@@ -8,7 +8,7 @@ Test renders on YouTube:
 https://www.youtube.com/playlist?list=PL6EMD7-6AAKjZGg_cg1v9VnOGYuyuFj9C
 
 More discussion at:  
-https://www.intrepiduniverse.com/projects/pythonAnimation.html
+https://www.intrepiduniverse.com/projects/blender-animation.html
 
 Dependencies:
 * Blender v2.78c
