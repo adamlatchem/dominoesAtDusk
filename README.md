@@ -18,3 +18,18 @@ Dependencies:
 1. Bake the ocean in lib/objects/Ocean.blend
 2. Render each scene in lib/scenes/Location-Main.blend except Movie
 3. Render Movie scene in lib/scenes/Location-Main.blend
+
+## Eevee Reboot 2019
+In late 2019 an Eevee reboot was produced
+
+Dependencies:
+* Blender v2.81
+
+To Render use the included Makefile:
+$ make movie
+
+Typical time to render from scratch
+
+real    148m32.513s
+user    116m48.445s
+sys     13m14.051s
