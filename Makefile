@@ -1,8 +1,8 @@
 help::
-	@echo
-	@echo Render Dominoes at Dusk
-	@echo ========================================
-	@echo
+	#
+	# Render Dominoes at Dusk
+	# ========================================
+	#
 
 # ======================================
 # Tools
@@ -71,8 +71,9 @@ $(MOVIE):	$(FOOTAGE) $(MUSIC) $(STILLS) | $(CUTTING_ROOM)
 # ======================================
 # The movie goal
 help::
-	@echo '$$ make movie'
-	@echo '    Render the movie'
+	# $$ make movie
+	#    Render the movie
+
 movie:	$(MOVIE)
 	$(TIMESTAMP)
 	$(OPEN) $(MOVIE)
@@ -80,8 +81,9 @@ movie:	$(MOVIE)
 # ======================================
 # Clean directory
 help::
-	@echo '$$ make clean'
-	@echo '    Remove intermediate renders and caches'
+	# $$ make clean
+	#    Remove intermediate renders and caches
+
 clean:
 	$(TIMESTAMP)
 	$(RM) -rf cache_ocean cache_ocean_wire cache_render
@@ -89,4 +91,4 @@ clean:
 .PHONY: clean movie
 
 help::
-	@echo
+	#
