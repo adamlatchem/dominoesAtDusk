@@ -7,10 +7,11 @@ help::
 # ======================================
 # Tools
 BLENDER := /Applications/Blender.app/Contents/MacOS/Blender
-MKDIR := mkdir
+ECHO := /bin/echo
+MKDIR := /bin/mkdir
 OPEN := open
-RM := rm
-TIMESTAMP := echo -n TIMESTAMP: && date
+RM := /bin/rm
+TIMESTAMP := $(ECHO) -n TIMESTAMP: && date
 
 # ======================================
 # Directories
@@ -40,11 +41,11 @@ STILLS := $(STILLS_DIR)/AdamLatchem.png \
 
 cache_ocean_wire/disp_1000.exr: director.py $(OCEAN) | cache_ocean_wire
 	$(TIMESTAMP)
-	$(BLENDER) --window-geometry -1024 0 0 0 "$(OCEAN)" --python director.py -- Scene.Wireframe
+	$(BLENDER) "$(OCEAN)" --python director.py -- Scene.Wireframe
 
 cache_ocean/disp_1200.exr: director.py $(OCEAN) | cache_ocean
 	$(TIMESTAMP)
-	$(BLENDER) --window-geometry -1024 0 0 0 "$(OCEAN)" --python director.py -- OceanRushBake
+	$(BLENDER) "$(OCEAN)" --python director.py -- OceanRushBake
 
 cache_render/OceanRush0500.png: cache_ocean/disp_1200.exr | $(CUTTING_ROOM) cache_render
 	$(TIMESTAMP)
